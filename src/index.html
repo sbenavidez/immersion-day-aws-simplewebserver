@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Inmersion Day AWS - Web Server Demo</title>
+
+    <script>
+            function getUsers(){
+                const Http = new XMLHttpRequest();
+                //const url='xxxxx'
+                const url='http://REPLACE_URL:3000/users';
+
+                Http.open("GET", url);
+                Http.send();
+                
+                Http.onreadystatechange = (e) => {
+                    console.log(Http.responseText)
+                    document.getElementById("resp").value=Http.responseText
+                }
+            }
+    </script>
+
+</head>
+
+<body>
+    <br>
+    <b>Inmersion Day AWS - Simple Web Server Demo</b>
+    <br>
+    <br>
+    <br>
+    <button type=submit onclick="getUsers()">Enviar Get Request</button>
+    <br>
+    <br>
+    <br>
+    <textarea id="resp" rows="4" cols="100">
+    </textarea>
+
+</body>
+
+</html>
