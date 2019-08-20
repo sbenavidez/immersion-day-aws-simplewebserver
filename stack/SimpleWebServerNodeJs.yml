@@ -99,6 +99,16 @@ Resources:
     Type: AWS::EC2::EIP
     Properties:
       Domain: vpc
+  WebServerEIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+
+  EIPAssociation2WebServer:
+    Type: AWS::EC2::EIPAssociation
+    Properties: 
+      AllocationId: !GetAtt WebServerEIP2.AllocationId
+      InstanceId: !Ref WebServer
 
   NatGateway1:
     Type: AWS::EC2::NatGateway
@@ -228,13 +238,14 @@ Resources:
 
   WebServer:
     Type: AWS::EC2::Instance
+   # DependsOn: MySQLDB
     Properties:
-      ImageId: ami-02f706d959cedf892   ## Amazon Linux 2 AMI (HVM), SSD Volume Type
+      ImageId: ami-02f706d959cedf892   ## Amazon Linux 2 AMI (HVM), us-east-2
       InstanceType: t2.micro           ## free tier
       KeyName : santiago-latam-demo-us-east-2 
+      PrivateIpAddress: 10.10.3.10
       BlockDeviceMappings:
         - DeviceName: "/dev/xvda"
-        #- DeviceName: "/dev/sda1"
           Ebs:
             DeleteOnTermination: 'true'
             VolumeSize: 8
@@ -245,11 +256,45 @@ Resources:
       Tags:
         - Key: Name
           Value: INMD WebServer     
-      # UserData:
-      #   "Fn::Base64":
-      #     !Sub |
-      #       #!/bin/bash -xe
-      #       exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+      UserData:
+        "Fn::Base64":
+          !Sub |
+            #!/bin/bash -xe
+            exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+            
+            #install mysql client
+            sudo yum -y install mysql 
+            
+            #install nodeJS
+            sudo yum -y update
+            cd /home/ec2-user/
+            sudo yum install -y gcc-c++ make
+            curl -sL https://rpm.nodesource.com/setup_11.x | sudo -E bash -
+            sudo yum install -y nodejs
+
+            #install httpd & git
+            sudo yum -y install httpd
+            sudo service httpd start 
+            sudo yum -y install git
+
+            #upload project
+            mkdir express-api && cd express-api
+            npm install body-parser express mysql request properties-reader
+            git clone https://github.com/sbenavidez/inmersion-day-aws-simplewebserver.git
+
+            #move to httpd
+            mv inmersion-day-aws-simplewebserver/src/* .
+            sed -i "s/REPLACE_URL/${WebServerEIP2}/g" index.html
+            mv index.html /var/www/html/ 
+
+            #replace properties values
+            sed -i "s/HOST_PARAM/${MySQLDB.Endpoint.Address}/g" mysql.properties
+            sed -i "s/USER_PARAM/INMD/g" mysql.properties
+            sed -i "s/PWD_PARAM/${DBPassword}/g" mysql.properties
+            sed -i "s/DB_PARAM/INMDDB/g" mysql.properties            
+
+            #start node app
+            node application.js
 
   DBSubnetGroup:
     Type: 'AWS::RDS::DBSubnetGroup'
