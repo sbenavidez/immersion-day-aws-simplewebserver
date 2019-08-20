@@ -2,9 +2,9 @@ const http = require('http')
 const mysql = require('mysql');
 const port = 3000
 
-const host = 'inmddb-instance.cjmg0utwymwz.us-east-2.rds.amazonaws.com'
+const host = 'xxxx'
 const user = 'INMD'
-const password = 'Cloud1234'
+const password = 'xxxx'
 const database = 'INMDDB'
 
 const connection = mysql.createConnection({
