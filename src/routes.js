@@ -7,7 +7,7 @@ const router = app => {
     app.get('/', (request, response) => {
         
         response.send({
-            message: 'Welcome to the Node.js Express REST API for AWS Inmersion Day!'
+            message: 'Welcome to the Node.js Express REST API for AWS Immersion Day!'
         });
 
     });

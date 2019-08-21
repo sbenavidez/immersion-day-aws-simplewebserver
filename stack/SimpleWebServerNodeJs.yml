@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: 'Inmersion Day General - Servicios Fundacionales - Web Server'
+Description: 'Immersion Day General - Servicios Fundacionales - Web Server'
 
 Parameters:
   DBPassword:
@@ -22,14 +22,14 @@ Resources:
       InstanceTenancy: default
       Tags:
       - Key: Name
-        Value: INMD VPC
+        Value: IMMD VPC
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
       - Key: Name
-        Value: INMD IGW
+        Value: IMMD IGW
 
   InternetGatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
@@ -48,7 +48,7 @@ Resources:
       MapPublicIpOnLaunch: 'false'
       Tags:
       - Key: Name
-        Value: INMD Private Subnet 1
+        Value: IMMD Private Subnet 1
       VpcId: !Ref MyVPC
 
 
@@ -63,7 +63,7 @@ Resources:
       MapPublicIpOnLaunch: 'false'
       Tags:
       - Key: Name
-        Value: INMD Private Subnet 2
+        Value: IMMD Private Subnet 2
       VpcId: !Ref MyVPC
       
 
@@ -78,7 +78,7 @@ Resources:
       MapPublicIpOnLaunch: 'true'
       Tags:
       - Key: Name
-        Value: INMD Public Subnet 1
+        Value: IMMD Public Subnet 1
       VpcId: !Ref MyVPC
 
   PublicSubnet2:
@@ -92,7 +92,7 @@ Resources:
       MapPublicIpOnLaunch: 'true'
       Tags:
       - Key: Name
-        Value: INMD Public Subnet 2
+        Value: IMMD Public Subnet 2
       VpcId: !Ref MyVPC
       
   NatGatewayEIP1:
@@ -120,7 +120,7 @@ Resources:
       SubnetId: !Ref PublicSubnet1
       Tags:
       - Key: Name
-        Value: INMD NatGW
+        Value: IMMD NatGW
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -128,7 +128,7 @@ Resources:
       VpcId: !Ref MyVPC
       Tags:
       - Key: Name
-        Value:  INMD Public RT
+        Value:  IMMD Public RT
 
   AttachPublicSubnet1RouteTable:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -162,7 +162,7 @@ Resources:
         Ref: MyVPC
       Tags:
       - Key: Name
-        Value: INMD Private RT 
+        Value: IMMD Private RT 
 
   AttachPrivateSubnet1RouteTable1:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -210,7 +210,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: Name
-        Value: INMD SG WS
+        Value: IMMD SG WS
 
   SecGroupDB:
     Type: AWS::EC2::SecurityGroup
@@ -225,7 +225,7 @@ Resources:
         CidrIp: 0.0.0.0/0
       Tags:
       - Key: Name
-        Value: INMD SG DB
+        Value: IMMD SG DB
   SecurityGroupIngress:            
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -255,7 +255,7 @@ Resources:
       SubnetId: !Ref PublicSubnet1
       Tags:
         - Key: Name
-          Value: INMD WebServer     
+          Value: IMMD WebServer     
       UserData:
         "Fn::Base64":
           !Sub |
@@ -289,9 +289,9 @@ Resources:
 
             #replace properties values
             sed -i "s/HOST_PARAM/${MySQLDB.Endpoint.Address}/g" mysql.properties
-            sed -i "s/USER_PARAM/INMD/g" mysql.properties
+            sed -i "s/USER_PARAM/IMMD/g" mysql.properties
             sed -i "s/PWD_PARAM/${DBPassword}/g" mysql.properties
-            sed -i "s/DB_PARAM/INMDDB/g" mysql.properties            
+            sed -i "s/DB_PARAM/IMMDDB/g" mysql.properties            
 
             #start node app
             node application.js
@@ -299,7 +299,7 @@ Resources:
   DBSubnetGroup:
     Type: 'AWS::RDS::DBSubnetGroup'
     Properties:
-      DBSubnetGroupDescription: 'INMD Subnet group'
+      DBSubnetGroupDescription: 'IMMD Subnet group'
       SubnetIds:
         - !Ref PrivateSubnet1
         - !Ref PrivateSubnet2
@@ -307,19 +307,19 @@ Resources:
   MySQLDB:
     Type: AWS::RDS::DBInstance
     Properties:
-      DBName: INMDDB
+      DBName: IMMDDB
       AllocatedStorage: '30'
       StorageType: gp2
       DBInstanceClass: db.t2.micro
-      DBInstanceIdentifier: 'INMDDB-INSTANCE'
+      DBInstanceIdentifier: 'IMMDDB-INSTANCE'
       EngineVersion: '5.6'
       Engine: MySQL
-      MasterUsername: INMD
+      MasterUsername: IMMD
       MasterUserPassword: !Ref 'DBPassword'
       MultiAZ: 'false'
       Tags:
       - Key: Name
-        Value: INMD DB
+        Value: IMMD DB
       VPCSecurityGroups:
         - !Ref SecGroupDB
       DBSubnetGroupName : !Ref DBSubnetGroup
